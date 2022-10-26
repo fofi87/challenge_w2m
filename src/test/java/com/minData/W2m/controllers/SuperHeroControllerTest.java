@@ -33,7 +33,7 @@ public class SuperHeroControllerTest {
 
     @Before
     public void setUp() {
-        superHero = new SuperHero();
+        superHero = SuperHero.builder().build();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class SuperHeroControllerTest {
         mockMvc.perform(put(URL.toString())
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(superHero)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
