@@ -53,6 +53,7 @@ public class SuperHeroControllerTest {
     @Test
     public void getSuperHerosTest() throws Exception {
         given(superHeroService.findAll()).willReturn(List.of(superHero));
+
         mockMvc.perform(get(URL.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
@@ -63,6 +64,7 @@ public class SuperHeroControllerTest {
     @Test
     public void getSuperHeroByIdTest() throws Exception {
         given(superHeroService.findById(anyLong())).willReturn(superHero);
+
         mockMvc.perform(get(URL.append("/{id}").toString(), id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(superHero.getName()))
@@ -72,6 +74,7 @@ public class SuperHeroControllerTest {
     @Test
     public void getSuperHeroByIdNotFoundTest() throws Exception {
         given(superHeroService.findById(anyLong())).willThrow(new NotFoundException("SuperHero not found"));
+
         mockMvc.perform(get(URL.append("/{id}").toString(), id))
                 .andExpect(status().isNotFound());
     }
@@ -79,6 +82,7 @@ public class SuperHeroControllerTest {
     @Test
     public void getSuperHeroByNameTest() throws Exception {
         given(superHeroService.findByName(anyString())).willReturn(List.of(superHero));
+
         mockMvc.perform(get(URL.append("/").toString())
                         .param("name", "SuperMan"))
                 .andExpect(status().isOk())
@@ -88,16 +92,9 @@ public class SuperHeroControllerTest {
     }
 
     @Test
-    public void getSuperHeroByNameNotFoundTest() throws Exception {
-        given(superHeroService.findByName(anyString())).willThrow(new NotFoundException("SuperHero not found"));
-        mockMvc.perform(get(URL.toString())
-                        .param("name", "SuperMan"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     public void saveSuperHeroTest() throws Exception {
         given(superHeroService.save(superHero)).willReturn(superHero);
+
         mockMvc.perform(post(URL.toString())
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(superHero)))
@@ -109,6 +106,7 @@ public class SuperHeroControllerTest {
     @Test
     public void saveSuperHeroBadRequestTest() throws Exception {
         given(superHeroService.save(superHero)).willThrow(new BadRequestException("The origin is required"));
+
         mockMvc.perform(post(URL.toString())
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(superHero)))
@@ -119,6 +117,7 @@ public class SuperHeroControllerTest {
     public void updateuperHeroTest() throws Exception {
         superHero.setName("Iron Man");
         given(superHeroService.update(any())).willReturn(superHero);
+
         mockMvc.perform(put(URL.toString())
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(superHero)))
@@ -130,6 +129,7 @@ public class SuperHeroControllerTest {
     @Test
     public void updateuperHeroNotFoundTest() throws Exception {
         given(superHeroService.update(any())).willThrow(new NotFoundException("SuperHero not found"));
+
         mockMvc.perform(put(URL.toString())
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(superHero)))
@@ -139,6 +139,7 @@ public class SuperHeroControllerTest {
     @Test
     public void deleteSuperHeroTest() throws Exception {
         willDoNothing().given(superHeroService).delete(anyLong());
+
         mockMvc.perform(delete(URL.append("/{id}").toString(), id))
                 .andExpect(status().isOk());
     }
