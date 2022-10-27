@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -47,7 +48,12 @@ public class SuperHeroControllerTest {
 
     @Before
     public void setUp() {
-        superHero = SuperHero.builder().name("SuperMan").age(35L).build();
+        superHero = SuperHero.builder()
+                .name("SuperMan")
+                .age(35L)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     @Test
@@ -83,7 +89,7 @@ public class SuperHeroControllerTest {
     public void getSuperHeroByNameTest() throws Exception {
         given(superHeroService.findByName(anyString())).willReturn(List.of(superHero));
 
-        mockMvc.perform(get(URL.append("/").toString())
+        mockMvc.perform(get(URL.append("/name").toString())
                         .param("name", "SuperMan"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))

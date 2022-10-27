@@ -6,8 +6,12 @@ import com.minData.W2m.domain.repository.SuperHeroRepository;
 import com.minData.W2m.domain.service.SuperHeroService;
 import com.minData.W2m.domain.validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,12 +30,14 @@ public class SuperHeroServiceImpl implements SuperHeroService {
     }
 
     @Override
+    @Cacheable(value= "superHeros", key="#id")
     public SuperHero findById(Long id) {
         return this.superHeroRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("SuperHero not found"));
     }
 
     @Override
+    @Cacheable(value= "superHeros", key="#name")
     public List<SuperHero> findByName(String name) {
         return this.superHeroRepository.findByName(name);
     }
@@ -47,6 +53,7 @@ public class SuperHeroServiceImpl implements SuperHeroService {
 
     @Override
     @Transactional
+    @CachePut(value="superHeros", key="#superHero.id")
     public SuperHero update(SuperHero superHero) {
         this.validator.validateSuperHero(superHero, Boolean.TRUE);
         this.superHeroRepository.findById(superHero.getId())
@@ -57,9 +64,11 @@ public class SuperHeroServiceImpl implements SuperHeroService {
 
     @Override
     @Transactional
+    @CacheEvict("superHeros")
     public void delete(Long id) {
         this.superHeroRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("SuperHero not found"));
         this.superHeroRepository.deleteById(id);
     }
+
 }

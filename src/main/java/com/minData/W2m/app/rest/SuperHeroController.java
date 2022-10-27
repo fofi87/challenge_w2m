@@ -26,7 +26,7 @@ public class SuperHeroController {
         return new ResponseEntity<>(this.superHeroService.findById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/")
+    @GetMapping("/name")
     public ResponseEntity<List<SuperHero>> getSuperHeroByName(@RequestParam("name") String name) {
         return new ResponseEntity<>(this.superHeroService.findByName(name), HttpStatus.OK);
     }

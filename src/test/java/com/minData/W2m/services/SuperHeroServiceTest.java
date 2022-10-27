@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +42,12 @@ public class SuperHeroServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        superHero = SuperHero.builder().name("SuperMan").age(35L).build();
+        superHero = SuperHero.builder()
+                .name("SuperMan")
+                .age(35L)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     @Test
