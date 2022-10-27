@@ -5,6 +5,7 @@ import com.minData.W2m.domain.exceptions.NotFoundException;
 import com.minData.W2m.domain.model.SuperHero;
 import com.minData.W2m.domain.repository.SuperHeroRepository;
 import com.minData.W2m.domain.service.impl.SuperHeroServiceImpl;
+import com.minData.W2m.domain.validators.Validator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +22,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class SuperHeroServiceTest {
@@ -32,6 +32,9 @@ public class SuperHeroServiceTest {
 
     @InjectMocks
     private SuperHeroServiceImpl superHeroService;
+
+    @Mock
+    private Validator validator;
 
     private SuperHero superHero;
 
@@ -92,6 +95,7 @@ public class SuperHeroServiceTest {
     @Test
     public void saveTest() {
         given(superHeroRepository.save(superHero)).willReturn(superHero);
+        doNothing().when(this.validator).validateSuperHero(superHero, Boolean.FALSE);
 
         SuperHero response = superHeroService.save(superHero);
 
@@ -103,19 +107,21 @@ public class SuperHeroServiceTest {
 
     @Test
     public void saveBadRequestTest() {
-        given(superHeroRepository.save(superHero)).willThrow(new BadRequestException("The origin is required"));
+        doThrow(new BadRequestException("The origin is required")).when(this.validator).validateSuperHero(superHero, Boolean.FALSE);
 
         Exception response = assertThrows(BadRequestException.class, () -> {
             superHeroService.save(superHero);
         });
 
         assertTrue(response.getMessage().contains("The origin is required"));
-        verify(this.superHeroRepository, times(1)).save(superHero);
+        verify(this.superHeroRepository, times(0)).save(superHero);
     }
 
     @Test
     public void updateTest() {
         superHero.setName("Iron Man");
+        doNothing().when(this.validator).validateSuperHero(superHero, Boolean.TRUE);
+        given(superHeroRepository.findById(superHero.getId())).willReturn(Optional.of(superHero));
         given(superHeroRepository.save(superHero)).willReturn(superHero);
 
         SuperHero response = superHeroService.update(superHero);
@@ -129,23 +135,24 @@ public class SuperHeroServiceTest {
     @Test
     public void updateBadRequestTest() {
         superHero.setName("Iron Man");
-        given(superHeroRepository.save(superHero)).willThrow(new BadRequestException("The origin is required"));
+        doThrow(new BadRequestException("The origin is required")).when(this.validator).validateSuperHero(superHero, Boolean.TRUE);
 
         Exception response = assertThrows(BadRequestException.class, () -> {
             superHeroService.update(superHero);
         });
 
         assertTrue(response.getMessage().contains("The origin is required"));
-        verify(this.superHeroRepository, times(1)).save(superHero);
+        verify(this.superHeroRepository, times(0)).save(superHero);
     }
 
     @Test
     public void deleteTest() {
-        willDoNothing().given(superHeroRepository).delete(anyLong());
+        given(superHeroRepository.findById(anyLong())).willReturn(Optional.of(superHero));
+        willDoNothing().given(superHeroRepository).deleteById(anyLong());
 
         superHeroService.delete(1L);
 
-        verify(this.superHeroRepository, times(1)).delete(1L);
+        verify(this.superHeroRepository, times(1)).deleteById(1L);
     }
 
 
