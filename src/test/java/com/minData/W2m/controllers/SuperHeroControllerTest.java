@@ -1,10 +1,10 @@
 package com.minData.W2m.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minData.W2m.app.api.SuperHeroApi;
 import com.minData.W2m.app.rest.SuperHeroController;
 import com.minData.W2m.domain.exceptions.BadRequestException;
 import com.minData.W2m.domain.exceptions.NotFoundException;
-import com.minData.W2m.domain.model.SuperHero;
 import com.minData.W2m.domain.service.SuperHeroService;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -44,37 +43,35 @@ public class SuperHeroControllerTest {
 
     private static final Long id = 1L;
 
-    private SuperHero superHero;
+    private SuperHeroApi superHeroApi;
 
     @Before
     public void setUp() {
-        superHero = SuperHero.builder()
+        superHeroApi = SuperHeroApi.builder()
                 .name("SuperMan")
                 .age(35L)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     @Test
     public void getSuperHerosTest() throws Exception {
-        given(superHeroService.findAll()).willReturn(List.of(superHero));
+        given(superHeroService.findAll()).willReturn(List.of(superHeroApi));
 
         mockMvc.perform(get(URL.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
-                .andExpect(jsonPath("$[0].name").value(superHero.getName()))
-                .andExpect(jsonPath("$[0].age").value(superHero.getAge()));
+                .andExpect(jsonPath("$[0].name").value(superHeroApi.getName()))
+                .andExpect(jsonPath("$[0].age").value(superHeroApi.getAge()));
     }
 
     @Test
     public void getSuperHeroByIdTest() throws Exception {
-        given(superHeroService.findById(anyLong())).willReturn(superHero);
+        given(superHeroService.findById(anyLong())).willReturn(superHeroApi);
 
         mockMvc.perform(get(URL.append("/{id}").toString(), id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(superHero.getName()))
-                .andExpect(jsonPath("$.age").value(superHero.getAge()));
+                .andExpect(jsonPath("$.name").value(superHeroApi.getName()))
+                .andExpect(jsonPath("$.age").value(superHeroApi.getAge()));
     }
 
     @Test
@@ -87,49 +84,49 @@ public class SuperHeroControllerTest {
 
     @Test
     public void getSuperHeroByNameTest() throws Exception {
-        given(superHeroService.findByName(anyString())).willReturn(List.of(superHero));
+        given(superHeroService.findByName(anyString())).willReturn(List.of(superHeroApi));
 
         mockMvc.perform(get(URL.append("/name").toString())
                         .param("name", "SuperMan"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
-                .andExpect(jsonPath("$[0].name").value(superHero.getName()))
-                .andExpect(jsonPath("$[0].age").value(superHero.getAge()));
+                .andExpect(jsonPath("$[0].name").value(superHeroApi.getName()))
+                .andExpect(jsonPath("$[0].age").value(superHeroApi.getAge()));
     }
 
     @Test
     public void saveSuperHeroTest() throws Exception {
-        given(superHeroService.save(superHero)).willReturn(superHero);
+        given(superHeroService.save(superHeroApi)).willReturn(superHeroApi);
 
         mockMvc.perform(post(URL.toString())
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(superHero)))
+                        .content(objectMapper.writeValueAsString(superHeroApi)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(superHero.getName()))
-                .andExpect(jsonPath("$.age").value(superHero.getAge()));
+                .andExpect(jsonPath("$.name").value(superHeroApi.getName()))
+                .andExpect(jsonPath("$.age").value(superHeroApi.getAge()));
     }
 
     @Test
     public void saveSuperHeroBadRequestTest() throws Exception {
-        given(superHeroService.save(superHero)).willThrow(new BadRequestException("The origin is required"));
+        given(superHeroService.save(superHeroApi)).willThrow(new BadRequestException("The origin is required"));
 
         mockMvc.perform(post(URL.toString())
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(superHero)))
+                        .content(objectMapper.writeValueAsString(superHeroApi)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void updateuperHeroTest() throws Exception {
-        superHero.setName("Iron Man");
-        given(superHeroService.update(any())).willReturn(superHero);
+        superHeroApi.setName("Iron Man");
+        given(superHeroService.update(any())).willReturn(superHeroApi);
 
         mockMvc.perform(put(URL.toString())
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(superHero)))
+                        .content(objectMapper.writeValueAsString(superHeroApi)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(superHero.getName()))
-                .andExpect(jsonPath("$.age").value(superHero.getAge()));
+                .andExpect(jsonPath("$.name").value(superHeroApi.getName()))
+                .andExpect(jsonPath("$.age").value(superHeroApi.getAge()));
     }
 
     @Test
@@ -138,7 +135,7 @@ public class SuperHeroControllerTest {
 
         mockMvc.perform(put(URL.toString())
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(superHero)))
+                        .content(objectMapper.writeValueAsString(superHeroApi)))
                 .andExpect(status().isNotFound());
     }
 

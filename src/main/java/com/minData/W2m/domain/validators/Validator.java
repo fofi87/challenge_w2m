@@ -1,13 +1,13 @@
 package com.minData.W2m.domain.validators;
 
+import com.minData.W2m.app.api.SuperHeroApi;
 import com.minData.W2m.domain.exceptions.BadRequestException;
-import com.minData.W2m.domain.model.SuperHero;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Validator {
 
-    public void validateSuperHero(SuperHero superHero, Boolean withId) {
+    public void validateSuperHero(SuperHeroApi superHero, Boolean withId) {
         if(withId && superHero.getId() == null) {
             throw new BadRequestException("The id is required");
         }

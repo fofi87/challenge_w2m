@@ -1,5 +1,6 @@
 package com.minData.W2m.services;
 
+import com.minData.W2m.app.api.SuperHeroApi;
 import com.minData.W2m.domain.exceptions.BadRequestException;
 import com.minData.W2m.domain.exceptions.NotFoundException;
 import com.minData.W2m.domain.model.SuperHero;
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,9 @@ public class SuperHeroServiceTest {
     @Mock
     private SuperHeroRepository superHeroRepository;
 
+    @Mock
+    private ModelMapper modelMapper;
+
     @InjectMocks
     private SuperHeroServiceImpl superHeroService;
 
@@ -38,6 +43,8 @@ public class SuperHeroServiceTest {
     private Validator validator;
 
     private SuperHero superHero;
+
+    private SuperHeroApi superHeroApi;
 
     @Before
     public void setUp() {
@@ -48,13 +55,18 @@ public class SuperHeroServiceTest {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+
+        superHeroApi = SuperHeroApi.builder()
+                .name("SuperMan")
+                .age(35L)
+                .build();
     }
 
     @Test
     public void findAllTest() {
         given(superHeroRepository.findAll()).willReturn(List.of(superHero));
-
-        List<SuperHero> response = superHeroService.findAll();
+        given(modelMapper.map(superHero, SuperHeroApi.class)).willReturn(superHeroApi);
+        List<SuperHeroApi> response = superHeroService.findAll();
 
         assertNotNull(response);
         assertEquals(response.get(0).getName(), superHero.getName());
@@ -65,8 +77,9 @@ public class SuperHeroServiceTest {
     @Test
     public void findByIdTest() {
         given(superHeroRepository.findById(anyLong())).willReturn(Optional.of(superHero));
+        given(modelMapper.map(superHero, SuperHeroApi.class)).willReturn(superHeroApi);
 
-        SuperHero response = superHeroService.findById(1L);
+        SuperHeroApi response = superHeroService.findById(1L);
 
         assertNotNull(response);
         assertEquals(response.getName(), superHero.getName());
@@ -89,8 +102,9 @@ public class SuperHeroServiceTest {
     @Test
     public void findByNameTest() {
         given(superHeroRepository.findByName(anyString())).willReturn(List.of(superHero));
+        given(modelMapper.map(superHero, SuperHeroApi.class)).willReturn(superHeroApi);
 
-        List<SuperHero> response = superHeroService.findByName("SuperMan");
+        List<SuperHeroApi> response = superHeroService.findByName("SuperMan");
 
         assertNotNull(response);
         assertEquals(response.get(0).getName(), superHero.getName());
@@ -101,22 +115,24 @@ public class SuperHeroServiceTest {
     @Test
     public void saveTest() {
         given(superHeroRepository.save(superHero)).willReturn(superHero);
-        doNothing().when(this.validator).validateSuperHero(superHero, Boolean.FALSE);
+        doNothing().when(this.validator).validateSuperHero(superHeroApi, Boolean.FALSE);
+        given(modelMapper.map(superHeroApi, SuperHero.class)).willReturn(superHero);
+        given(modelMapper.map(superHero, SuperHeroApi.class)).willReturn(superHeroApi);
 
-        SuperHero response = superHeroService.save(superHero);
+        SuperHeroApi response = superHeroService.save(superHeroApi);
 
         assertNotNull(response);
-        assertEquals(response.getName(), superHero.getName());
-        assertEquals(response.getAge(), superHero.getAge());
+        assertEquals(response.getName(), superHeroApi.getName());
+        assertEquals(response.getAge(), superHeroApi.getAge());
         verify(this.superHeroRepository, times(1)).save(superHero);
     }
 
     @Test
     public void saveBadRequestTest() {
-        doThrow(new BadRequestException("The origin is required")).when(this.validator).validateSuperHero(superHero, Boolean.FALSE);
+        doThrow(new BadRequestException("The origin is required")).when(this.validator).validateSuperHero(superHeroApi, Boolean.FALSE);
 
         Exception response = assertThrows(BadRequestException.class, () -> {
-            superHeroService.save(superHero);
+            superHeroService.save(superHeroApi);
         });
 
         assertTrue(response.getMessage().contains("The origin is required"));
@@ -126,25 +142,27 @@ public class SuperHeroServiceTest {
     @Test
     public void updateTest() {
         superHero.setName("Iron Man");
-        doNothing().when(this.validator).validateSuperHero(superHero, Boolean.TRUE);
+        doNothing().when(this.validator).validateSuperHero(superHeroApi, Boolean.TRUE);
         given(superHeroRepository.findById(superHero.getId())).willReturn(Optional.of(superHero));
         given(superHeroRepository.save(superHero)).willReturn(superHero);
+        given(modelMapper.map(superHeroApi, SuperHero.class)).willReturn(superHero);
+        given(modelMapper.map(superHero, SuperHeroApi.class)).willReturn(superHeroApi);
 
-        SuperHero response = superHeroService.update(superHero);
+        SuperHeroApi response = superHeroService.update(superHeroApi);
 
         assertNotNull(response);
-        assertEquals(response.getName(), superHero.getName());
-        assertEquals(response.getAge(), superHero.getAge());
+        assertEquals(response.getName(), superHeroApi.getName());
+        assertEquals(response.getAge(), superHeroApi.getAge());
         verify(this.superHeroRepository, times(1)).save(superHero);
     }
 
     @Test
     public void updateBadRequestTest() {
         superHero.setName("Iron Man");
-        doThrow(new BadRequestException("The origin is required")).when(this.validator).validateSuperHero(superHero, Boolean.TRUE);
+        doThrow(new BadRequestException("The origin is required")).when(this.validator).validateSuperHero(superHeroApi, Boolean.TRUE);
 
         Exception response = assertThrows(BadRequestException.class, () -> {
-            superHeroService.update(superHero);
+            superHeroService.update(superHeroApi);
         });
 
         assertTrue(response.getMessage().contains("The origin is required"));
@@ -160,7 +178,5 @@ public class SuperHeroServiceTest {
 
         verify(this.superHeroRepository, times(1)).deleteById(1L);
     }
-
-
 
 }
