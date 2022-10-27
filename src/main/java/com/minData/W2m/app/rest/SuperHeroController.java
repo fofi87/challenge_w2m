@@ -1,5 +1,6 @@
 package com.minData.W2m.app.rest;
 
+import com.minData.W2m.aspects.LogAnnotation;
 import com.minData.W2m.domain.model.SuperHero;
 import com.minData.W2m.domain.service.SuperHeroService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/superHeros")
+@LogAnnotation
 public class SuperHeroController {
 
     @Autowired
