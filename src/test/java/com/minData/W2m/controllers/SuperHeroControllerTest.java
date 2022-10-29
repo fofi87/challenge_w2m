@@ -117,7 +117,7 @@ public class SuperHeroControllerTest {
     }
 
     @Test
-    public void updateuperHeroTest() throws Exception {
+    public void updateSuperHeroTest() throws Exception {
         superHeroApi.setName("Iron Man");
         given(superHeroService.update(any())).willReturn(superHeroApi);
 
@@ -130,7 +130,7 @@ public class SuperHeroControllerTest {
     }
 
     @Test
-    public void updateuperHeroNotFoundTest() throws Exception {
+    public void updateSuperHeroNotFoundTest() throws Exception {
         given(superHeroService.update(any())).willThrow(new NotFoundException("SuperHero not found"));
 
         mockMvc.perform(put(URL.toString())

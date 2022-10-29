@@ -52,7 +52,7 @@ public class SuperHeroServiceImpl implements SuperHeroService {
     @Transactional
     public SuperHeroApi save(SuperHeroApi superHeroApi) {
         this.validator.validateSuperHero(superHeroApi, Boolean.FALSE);
-        SuperHero entity = this.modelMapper.map(superHeroApi, SuperHero.class);
+        var entity = this.modelMapper.map(superHeroApi, SuperHero.class);
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
         return this.modelMapper.map(this.superHeroRepository.save(entity), SuperHeroApi.class);
@@ -65,9 +65,9 @@ public class SuperHeroServiceImpl implements SuperHeroService {
         this.validator.validateSuperHero(superHeroApi, Boolean.TRUE);
         this.superHeroRepository.findById(superHeroApi.getId())
                 .orElseThrow(() -> new NotFoundException("SuperHero not found"));
-        SuperHero entity = this.modelMapper.map(superHeroApi, SuperHero.class);
-        entity.setUpdatedAt(LocalDateTime.now());
-        return this.modelMapper.map(this.superHeroRepository.save(entity), SuperHeroApi.class);
+        var superHero = this.modelMapper.map(superHeroApi, SuperHero.class);
+        superHero.setUpdatedAt(LocalDateTime.now());
+        return this.modelMapper.map(this.superHeroRepository.save(superHero), SuperHeroApi.class);
     }
 
     @Override

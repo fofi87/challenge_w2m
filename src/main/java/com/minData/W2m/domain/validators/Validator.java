@@ -11,7 +11,7 @@ public class Validator {
         if(withId && superHero.getId() == null) {
             throw new BadRequestException("The id is required");
         }
-        if (superHero.getName() == null) {
+        if (superHero.getName() == null || superHero.getName().isBlank()) {
             throw new BadRequestException("The name is required");
         }
         if(superHero.getAge() == null) {
